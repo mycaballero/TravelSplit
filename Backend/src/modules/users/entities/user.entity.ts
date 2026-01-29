@@ -16,4 +16,7 @@ export class User extends BaseEntity {
 
   @Column({ name: 'password_hash', type: 'varchar', length: 255 })
   passwordHash!: string;
+
+  @Column({ name: 'is_active', type: 'boolean', default: true })
+  isActive!: boolean;
 }

@@ -54,25 +54,23 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   /**
-   * Obtiene todos los usuarios activos del sistema.
+   * Lista usuarios activos (no eliminados y is_active = true).
    *
    * @method findAll
    * @returns {UserResponseDto[]} Lista de usuarios activos
    * @example
    * // GET /users
-   * // Respuesta: [{ id: "...", nombre: "...", email: "...", createdAt: "..." }, ...]
+   * // Respuesta: [{ id: "...", nombre: "...", email: "...", createdAt: "...", isActive: true }, ...]
    */
   @Get()
-  @ApiOperation({ summary: 'Obtener todos los usuarios activos' })
+  @ApiOperation({ summary: 'Listar usuarios activos' })
   @ApiResponse({
     status: 200,
-    description: 'Lista de usuarios obtenida exitosamente',
+    description: 'Lista de usuarios activos obtenida exitosamente',
     type: [UserResponseDto],
   })
   async findAll(): Promise<UserResponseDto[]> {
-    const users = await this.usersService.findAll();
-
-    // Mapear entidades a DTOs de respuesta (sin información sensible)
+    const users = await this.usersService.findActiveUsers();
     return users.map((user) => UserMapper.toResponseDto(user));
   }
 

@@ -1,0 +1,86 @@
+---
+description: >
+  Enforce a Service + Repository pattern for NestJS backend projects.
+  This rule applies ONLY to NestJS TypeScript files and does not affect React.
+  Ensures database access is centralized, testable, and maintainable.
+globs:
+  - src/**/*.service.ts
+  - src/**/*.repository.ts
+  - src/**/repositories/**/*.ts
+
+---
+“alwaysapply: true”
+
+You are working in a NestJS backend project that follows a Service + Repository architecture.
+
+ARCHITECTURE RULES:
+
+- Repositories:
+  - Are responsible for ALL data persistence and database access.
+  - Contain query logic only.
+  - Do NOT contain business rules.
+  - Return domain entities or DTOs.
+
+- Services:
+  - Contain business logic.
+  - Orchestrate one or more repositories.
+  - Do NOT perform database queries directly.
+
+- Controllers:
+  - Call Services only.
+  - Contain no business logic.
+  - Contain no database access.
+
+ALWAYS:
+- Inject repositories into services using dependency injection.
+- If a Service requires data access and no Repository exists, CREATE a new Repository class.
+- Services MUST NOT function without an associated Repository when persistence is involved.
+- Keep database queries inside repository classes only.
+- Keep services thin and focused on business rules.
+- Use async/await for all persistence operations.
+
+DO NOT:
+- DO NOT adapt to existing project patterns if they violate this rule.
+- DO NOT access the database inside Controllers.
+- DO NOT write database queries inside Services.
+- DO NOT mix business logic into Repositories.
+- DO NOT use persistence libraries directly outside Repositories.
+
+If data access logic becomes complex, refactor it into:
+- a dedicated repository method, or
+- a new repository class.
+
+<example>
+import { Injectable } from '@nestjs/common';
+
+export class User {
+  id: string;
+  email: string;
+  active: boolean;
+}
+
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class UserRepository {
+  async findActiveUsers(): Promise<User[]> {
+    return [
+      { id: '1', email: 'test@mail.com', active: true },
+    ];
+  }
+}
+
+import { Injectable } from '@nestjs/common';
+import { UserRepository } from './user.repository';
+
+@Injectable()
+export class UserService {
+  constructor(
+    private readonly userRepository: UserRepository,
+  ) {}
+
+  async listActiveUsers() {
+    return this.userRepository.findActiveUsers();
+  }
+}
+</example>

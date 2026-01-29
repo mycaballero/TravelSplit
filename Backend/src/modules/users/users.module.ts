@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersController } from './controllers/users.controller';
 import { UsersService } from './services/users.service';
+import { UsersRepository } from './repositories/users.repository';
 import { User } from './entities/user.entity';
 
 /**
@@ -9,14 +10,15 @@ import { User } from './entities/user.entity';
  *
  * Este módulo gestiona las operaciones CRUD de usuarios (excepto creación, que se maneja en AuthModule).
  *
- * Estructura (Patrón CSED):
+ * Estructura (Patrón Service + Repository):
  * - Controller: Maneja las peticiones HTTP de gestión de usuarios (GET, PUT, DELETE)
- * - Service: Contiene la lógica de negocio y acceso a datos mediante TypeORM
+ * - Service: Lógica de negocio; orquesta el repositorio
+ * - Repository: Acceso a datos y consultas
  * - Entity: Define el modelo de datos de User
  * - DTO: Define los contratos de validación y respuesta de la API
  *
  * Endpoints:
- * - GET /users - Obtener todos los usuarios activos
+ * - GET /users - Listar usuarios activos (no eliminados y is_active = true)
  * - GET /users/:id - Obtener un usuario por ID
  * - PUT /users/:id - Actualizar un usuario
  * - DELETE /users/:id - Eliminar un usuario (soft delete)
@@ -29,7 +31,7 @@ import { User } from './entities/user.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersRepository, UsersService],
   exports: [UsersService],
 })
 export class UsersModule {}
